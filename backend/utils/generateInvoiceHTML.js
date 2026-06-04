@@ -9,10 +9,10 @@ function generateInvoiceHTML(order, paymentId = "") {
 
   const date = new Date(order.createdAt).toLocaleString("en-IN");
 
-  const subtotal = order.total || 0;
+  const subtotal = Number(order.total || 0);
   const total = subtotal;
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=Order:${order._id}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=Order:${order._id}`;
 
   const formatCurrency = (value) =>
     `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -21,10 +21,14 @@ function generateInvoiceHTML(order, paymentId = "") {
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="UTF-8" />
 
 <style>
+
+@page{
+  size:A4;
+  margin:14mm;
+}
 
 *{
   box-sizing:border-box;
@@ -32,19 +36,28 @@ function generateInvoiceHTML(order, paymentId = "") {
 
 body{
   margin:0;
-  padding:20px;
-  background:#f5f6f8;
   font-family:Arial,Helvetica,sans-serif;
   color:#222;
+  background:#fff;
 }
 
 .container{
-  max-width:800px;
-  margin:auto;
-  background:#ffffff;
-  padding:35px;
-  border-radius:10px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+  width:100%;
+  border:1px solid #e5e7eb;
+}
+
+.top-strip{
+  height:10px;
+  background:linear-gradient(
+    90deg,
+    #1b5e20,
+    #2e7d32,
+    #4caf50
+  );
+}
+
+.content{
+  padding:28px;
 }
 
 table{
@@ -52,24 +65,8 @@ table{
   border-collapse:collapse;
 }
 
-td{
-  font-size:13px;
-  padding:6px 0;
-  vertical-align:top;
-}
-
-.title{
-  font-size:28px;
-  font-weight:700;
-  color:#2E7D32;
-}
-
 .right{
   text-align:right;
-}
-
-.bold{
-  font-weight:700;
 }
 
 .muted{
@@ -77,39 +74,61 @@ td{
   font-size:12px;
 }
 
-.small{
-  color:#777;
-  font-size:11px;
-}
-
-.section{
-  margin-top:28px;
-  page-break-inside:avoid;
-}
-
-.border-top{
-  border-top:1px solid #e5e7eb;
-}
-
-.meta{
-  margin-top:8px;
-}
-
-.meta div{
-  font-size:12px;
-  color:#555;
-  margin-top:4px;
+.invoice-title{
+  font-size:32px;
+  font-weight:700;
+  color:#2e7d32;
 }
 
 .paid{
   display:inline-block;
   margin-top:10px;
-  background:#E8F5E9;
-  color:#1B5E20;
+  background:#e8f5e9;
+  color:#1b5e20;
   padding:6px 14px;
-  border-radius:30px;
-  font-size:11px;
+  border-radius:20px;
+  font-size:12px;
   font-weight:700;
+}
+
+.info-grid{
+  margin-top:25px;
+}
+
+.info-grid td{
+  width:50%;
+  vertical-align:top;
+  padding:0 8px;
+}
+
+.card{
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  padding:16px;
+  min-height:130px;
+}
+
+.card-title{
+  color:#2e7d32;
+  font-weight:700;
+  font-size:15px;
+  margin-bottom:10px;
+}
+
+.items{
+  margin-top:25px;
+}
+
+.items th{
+  background:#2e7d32;
+  color:#fff;
+  padding:14px;
+  font-size:13px;
+}
+
+.items td{
+  padding:14px;
+  border-bottom:1px solid #eee;
 }
 
 .product{
@@ -119,99 +138,92 @@ td{
 }
 
 .product img{
-  width:42px;
-  height:42px;
+  width:60px;
+  height:60px;
   object-fit:cover;
-  border-radius:6px;
+  border-radius:8px;
   border:1px solid #eee;
 }
 
-.items-table th{
-  padding:12px 8px;
-  font-size:13px;
-  text-align:left;
-  border-bottom:1px solid #ddd;
-}
-
-.items-table td{
-  padding:12px 8px;
-  border-bottom:1px solid #f0f0f0;
-}
-
-.items-table tr{
-  page-break-inside:avoid;
-}
-
 .total-box{
-  width:280px;
+  width:320px;
   margin-left:auto;
+  margin-top:20px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
 }
 
 .total-box td{
-  padding:10px 0;
+  padding:14px;
 }
 
 .total-row{
-  border-top:2px solid #ddd;
-  font-size:16px;
+  background:#f1f8e9;
+  color:#1b5e20;
   font-weight:700;
+  font-size:18px;
 }
 
 .thank-you{
   margin-top:30px;
-  padding:18px;
-  text-align:center;
-  background:#F1F8E9;
-  border:1px solid #DCECCB;
-  border-radius:8px;
+  border:1px solid #dcecc8;
+  border-radius:12px;
+  background:#f8fcf6;
+  padding:20px;
 }
 
-.thank-you h3{
+.thank-you-table td{
+  vertical-align:middle;
+}
+
+.thank-title{
   margin:0;
-  color:#2E7D32;
-  font-size:18px;
+  color:#2e7d32;
+  font-size:24px;
 }
 
-.thank-you p{
-  margin-top:8px;
+.thank-text{
+  margin-top:10px;
   color:#555;
+  line-height:1.7;
+  font-size:14px;
+}
+
+.qr{
+  width:120px;
+  height:120px;
+}
+
+.benefits{
+  margin-top:20px;
+  padding:15px 0;
+  border-top:1px solid #eee;
+  border-bottom:1px solid #eee;
+}
+
+.benefits td{
+  text-align:center;
+  color:#2e7d32;
+  font-weight:700;
   font-size:13px;
 }
 
 .footer{
-  margin-top:30px;
-  border-top:1px solid #e5e7eb;
-  padding-top:18px;
-}
-
-.qr{
-  width:100px;
-  height:100px;
+  margin-top:20px;
+  font-size:12px;
+  color:#666;
+  line-height:1.8;
 }
 
 @media print{
-
   body{
     background:#fff;
-    padding:0;
   }
 
   .container{
-    max-width:100%;
-    box-shadow:none;
-    border-radius:0;
-    padding:20px;
+    border:none;
   }
-
-  .section,
-  .footer,
-  .thank-you,
-  table,
-  tr,
-  td{
-    page-break-inside:avoid !important;
-  }
-
 }
 
 </style>
@@ -222,117 +234,69 @@ td{
 
 <div class="container">
 
-  <!-- HEADER -->
+  <div class="top-strip"></div>
 
-  <table>
+  <div class="content">
 
-    <tr>
-
-      <td>
-
-        <img
-          src="${logoUrl}"
-          height="48"
-        />
-
-        <div
-          style="
-            margin-top:8px;
-            font-weight:700;
-          "
-        >
-          Latika Organics
-        </div>
-
-        <div class="muted">
-          Healthy & Natural Products
-        </div>
-
-      </td>
-
-      <td class="right">
-
-        <div class="title">
-          INVOICE
-        </div>
-
-        <div class="meta">
-
-          <div>
-            <strong>${invoiceNumber}</strong>
-          </div>
-
-          <div>
-            ${date}
-          </div>
-
-          ${
-            paymentId
-              ? `
-          <div>
-            Payment: ${paymentId}
-          </div>
-          `
-              : ""
-          }
-
-        </div>
-
-        <div class="paid">
-          PAID
-        </div>
-
-      </td>
-
-    </tr>
-
-  </table>
-
-  <!-- CUSTOMER -->
-
-  <div class="section">
+    <!-- HEADER -->
 
     <table>
 
       <tr>
 
-        <td width="50%">
+        <td>
 
-          <span class="bold">
-            Customer
-          </span><br/>
+          <img
+            src="${logoUrl}"
+            height="60"
+          />
 
-          ${order.name || "N/A"}<br/>
+          <div
+            style="
+              margin-top:8px;
+              font-weight:700;
+              font-size:18px;
+            "
+          >
+            Latika Organics
+          </div>
 
-          ${order.phone || ""}<br/>
-
-          ${order.email || ""}
+          <div class="muted">
+            Healthy & Natural Products
+          </div>
 
         </td>
 
-        <td width="50%">
+        <td class="right">
 
-          <span class="bold">
-            Delivery Address
-          </span><br/>
+          <div class="invoice-title">
+            INVOICE
+          </div>
 
-          <strong>
-            ${order.name || ""}
-          </strong><br/>
+          <div style="margin-top:10px;">
 
-          ${
-            order.address?.address ||
-            order.address?.street ||
-            ""
-          }<br/>
+            <strong>
+              ${invoiceNumber}
+            </strong>
 
-          ${order.address?.city || ""}
+            <br/>
 
-          ${
-            order.address?.pincode
-              ? ` - ${order.address.pincode}`
-              : ""
-          }
+            ${date}
+
+            ${
+              paymentId
+                ? `
+            <br/>
+            Payment: ${paymentId}
+            `
+                : ""
+            }
+
+          </div>
+
+          <div class="paid">
+            PAID
+          </div>
 
         </td>
 
@@ -340,31 +304,84 @@ td{
 
     </table>
 
-  </div>
+    <!-- CUSTOMER + ADDRESS -->
 
-  <!-- ITEMS -->
-
-  <div class="section">
-
-    <table class="items-table">
+    <table class="info-grid">
 
       <tr>
 
-        <th>
-          Product
-        </th>
+        <td>
 
-        <th class="right">
-          Qty
-        </th>
+          <div class="card">
 
-        <th class="right">
-          Price
-        </th>
+            <div class="card-title">
+              Customer Details
+            </div>
 
-        <th class="right">
-          Total
-        </th>
+            <strong>
+              ${order.name || "N/A"}
+            </strong>
+
+            <br/><br/>
+
+            ${order.phone || ""}
+
+            <br/>
+
+            ${order.email || ""}
+
+          </div>
+
+        </td>
+
+        <td>
+
+          <div class="card">
+
+            <div class="card-title">
+              Delivery Address
+            </div>
+
+            <strong>
+              ${order.name || ""}
+            </strong>
+
+            <br/><br/>
+
+            ${
+              order.address?.address ||
+              order.address?.street ||
+              ""
+            }
+
+            <br/>
+
+            ${order.address?.city || ""}
+
+            ${
+              order.address?.pincode
+                ? ` - ${order.address.pincode}`
+                : ""
+            }
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    </table>
+
+    <!-- PRODUCTS -->
+
+    <table class="items">
+
+      <tr>
+
+        <th>Product</th>
+        <th class="right">Qty</th>
+        <th class="right">Price</th>
+        <th class="right">Total</th>
 
       </tr>
 
@@ -380,7 +397,7 @@ td{
               <img
                 src="${
                   item.image ||
-                  "https://via.placeholder.com/50"
+                  "https://via.placeholder.com/60"
                 }"
               />
 
@@ -413,11 +430,7 @@ td{
 
     </table>
 
-  </div>
-
-  <!-- TOTAL -->
-
-  <div class="section">
+    <!-- TOTAL -->
 
     <div class="total-box">
 
@@ -425,7 +438,7 @@ td{
 
         <tr>
 
-          <td class="right">
+          <td>
             Subtotal
           </td>
 
@@ -437,7 +450,7 @@ td{
 
         <tr class="total-row">
 
-          <td class="right">
+          <td>
             Total
           </td>
 
@@ -451,76 +464,93 @@ td{
 
     </div>
 
-  </div>
+    <!-- THANK YOU -->
 
-  <!-- THANK YOU BANNER -->
+    <div class="thank-you">
 
-  <div class="thank-you">
+      <table class="thank-you-table">
 
-    <h3>
-      Thank You for Shopping with Latika Organics 🌿
-    </h3>
+        <tr>
 
-    <p>
-      We appreciate your trust in our natural and healthy products.
-      Your support motivates us to continue delivering premium organic
-      wellness solutions.
-    </p>
+          <td>
 
-  </div>
+            <h2 class="thank-title">
+              Thank You for Shopping with Latika Organics 💚
+            </h2>
 
-  <!-- FOOTER -->
+            <div class="thank-text">
 
-  <div class="footer">
+              We appreciate your trust in our natural
+              and healthy products. Your support helps
+              us continue delivering premium organic
+              wellness solutions.
 
-    <table>
+            </div>
+
+          </td>
+
+          <td
+            class="right"
+            width="150"
+          >
+
+            <img
+              src="${qrUrl}"
+              class="qr"
+            />
+
+          </td>
+
+        </tr>
+
+      </table>
+
+    </div>
+
+    <!-- BENEFITS -->
+
+    <table class="benefits">
 
       <tr>
 
-        <td
-          class="small"
-          style="line-height:1.7;"
-        >
+        <td>🌿 100% Natural</td>
 
-          <strong>
-            Latika Organics
-          </strong><br/>
+        <td>🧪 Lab Tested</td>
 
-          Healthy & Natural Products<br/>
+        <td>♻️ Eco Friendly</td>
 
-          Nashik, Maharashtra, India<br/><br/>
-
-          <strong>
-            Support:
-          </strong>
-
-          support@latikaorganics.com<br/>
-
-          <span style="color:#999;">
-
-            This is a computer-generated invoice
-            and does not require a signature.
-
-          </span>
-
-        </td>
-
-        <td align="right">
-
-          <img
-            src="${qrUrl}"
-            class="qr"
-          /><br/>
-
-          <span class="small">
-            Scan for order details
-          </span>
-
-        </td>
+        <td>❤️ Made With Care</td>
 
       </tr>
 
     </table>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+      <strong>
+        Latika Organics
+      </strong>
+
+      <br/>
+
+      Healthy & Natural Products
+
+      <br/>
+
+      Nashik, Maharashtra, India
+
+      <br/>
+
+      support@latikaorganics.com
+
+      <br/><br/>
+
+      This is a computer-generated invoice
+      and does not require a signature.
+
+    </div>
 
   </div>
 
