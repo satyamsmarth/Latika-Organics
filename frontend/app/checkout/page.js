@@ -15,6 +15,7 @@ export default function Checkout() {
 
   const [mounted, setMounted] = useState(false);
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState(""); // ✅ NEW
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -39,8 +40,12 @@ export default function Checkout() {
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser?.email) {
-      setEmail(storedUser.email);
-    }
+  setEmail(storedUser.email);
+}
+
+    if (storedUser?.name) {
+  setName(storedUser.name);
+}
 
   }, []);
 
@@ -62,10 +67,10 @@ export default function Checkout() {
 
   const payNow = async () => {
 
-    if (!address || !city || !pincode) {
-      toast.error("Please fill delivery address");
-      return;
-    }
+   if (!name || !address || !city || !pincode) {
+  toast.error("Please fill all details");
+  return;
+}
 
     if (email && !isValidEmail(email)) {
       toast.error("Enter valid email");
@@ -119,13 +124,19 @@ export default function Checkout() {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 orderData: {
-                  userId: storedUser.phone,
-                  phone: storedUser.phone,
-                  email, // ✅ IMPORTANT
-                  items: cartItems,
-                  total: data.total,
-                  address: { address, city, pincode }
-                }
+  userId: storedUser.phone,
+  name,
+  phone: storedUser.phone,
+  email,
+  items: cartItems,
+  total: data.total,
+  address: {
+    name,
+    address,
+    city,
+    pincode
+  }
+}
               })
             }
           );
@@ -171,18 +182,29 @@ export default function Checkout() {
           {/* ✅ EMAIL SECTION */}
           <div className="bg-white p-6 rounded-xl shadow border card-hover">
 
-            <h2 className="text-xl font-semibold mb-4">
-              Contact Details
-            </h2>
+  <h2 className="text-xl font-semibold mb-4">
+    Contact Details
+  </h2>
 
-            <input
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-3 rounded-md"
-            />
+  <div className="space-y-4">
 
-          </div>
+    <input
+      placeholder="Full Name"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="w-full border p-3 rounded-md"
+    />
+
+    <input
+      placeholder="Email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="w-full border p-3 rounded-md"
+    />
+
+  </div>
+
+</div>
 
           {/* ADDRESS */}
           <div className="bg-white p-6 rounded-xl shadow border card-hover">
