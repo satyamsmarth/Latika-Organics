@@ -14,15 +14,18 @@ export default function ProductCard({ product }) {
 
   const dispatch = useDispatch();
 
-  const cartItems = useSelector((state) => state.cart?.items || []);
+  const cartItems = useSelector(
+    (state) => state.cart?.items || []
+  );
 
   const itemInCart = cartItems.find(
     (item) => item.id === product._id
   );
 
-  const quantity = itemInCart ? itemInCart.quantity : 0;
+  const quantity = itemInCart
+    ? itemInCart.quantity
+    : 0;
 
-  /* CLOUDINARY SAFE IMAGE */
   const imageUrl =
     product?.images?.[0] ||
     product?.image ||
@@ -30,78 +33,233 @@ export default function ProductCard({ product }) {
 
   return (
 
-    <div className="bg-white rounded-xl border border-gray-100 
-      shadow-sm flex flex-col overflow-hidden 
-      transition-all duration-300 
-      hover:shadow-xl hover:-translate-y-1 card-hover fade-in">
+    <div
+      className="
+        group
+        bg-white
+        rounded-3xl
+        border
+        border-gray-100
+        overflow-hidden
+        shadow-sm
+        transition-all
+        duration-500
+        hover:-translate-y-2
+        hover:shadow-2xl
+        hover:border-green-200
+      "
+    >
 
       {/* IMAGE */}
-      <div className="h-48 bg-gray-50 flex items-center justify-center p-4 overflow-hidden">
+
+      <div
+        className="
+          relative
+          h-64
+          bg-gradient-to-b
+          from-green-50
+          to-white
+          flex
+          items-center
+          justify-center
+          p-6
+          overflow-hidden
+        "
+      >
+
+        {/* ORGANIC BADGE */}
+
+        <div
+          className="
+            absolute
+            top-4
+            left-4
+            bg-green-600
+            text-white
+            text-xs
+            font-medium
+            px-3
+            py-1
+            rounded-full
+            shadow
+          "
+        >
+          🌿 Organic
+        </div>
+
+        {/* IMAGE */}
 
         <img
           src={imageUrl}
           alt={product.name}
-          className="h-full object-contain 
-          transition-all duration-500 
-          hover:scale-110"
+          className="
+            h-full
+            object-contain
+            transition-all
+            duration-700
+            group-hover:scale-110
+          "
           onError={(e) => {
-            e.target.src = "https://via.placeholder.com/300?text=No+Image";
+            e.target.src =
+              "https://via.placeholder.com/300?text=No+Image";
           }}
         />
 
       </div>
 
       {/* CONTENT */}
-      <div className="p-4 flex flex-col flex-1">
 
-        {/* NAME */}
-        <h3 className="font-medium text-gray-800 text-[15px] line-clamp-2 min-h-[42px]">
+      <div className="p-5 flex flex-col flex-1">
+
+        {/* PRODUCT NAME */}
+
+        <h3
+          className="
+            font-semibold
+            text-gray-900
+            text-lg
+            leading-snug
+            line-clamp-2
+            min-h-[56px]
+          "
+        >
           {product.name}
         </h3>
 
+        {/* RATING */}
+
+        <div
+          className="
+            flex
+            items-center
+            gap-1
+            mt-2
+            text-sm
+          "
+        >
+          <span className="text-yellow-500">
+            ⭐⭐⭐⭐⭐
+          </span>
+
+          <span className="text-gray-500">
+            (4.9)
+          </span>
+        </div>
+
         {/* PRICE */}
-        <p className="text-green-700 font-semibold text-lg mt-1">
-          ₹{product.price}
-        </p>
+
+        <div className="mt-4">
+
+          <p
+            className="
+              text-2xl
+              font-bold
+              text-green-700
+            "
+          >
+            ₹{product.price}
+          </p>
+
+          <p className="text-xs text-gray-400 mt-1">
+            Premium Cold-Pressed Oil
+          </p>
+
+        </div>
 
         <div className="mt-auto">
 
-          {/* ================= CART CONTROLS ================= */}
+          {/* CART CONTROLS */}
 
           {quantity > 0 ? (
 
-            <div className="flex items-center justify-between mt-4">
+            <div className="mt-5">
 
-              <div className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-lg">
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                "
+              >
+
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    bg-gray-100
+                    px-2
+                    py-2
+                    rounded-xl
+                  "
+                >
+
+                  <button
+                    onClick={() =>
+                      dispatch(
+                        decreaseQty(product._id)
+                      )
+                    }
+                    className="
+                      w-8
+                      h-8
+                      rounded-lg
+                      hover:bg-white
+                      transition
+                      font-bold
+                    "
+                  >
+                    −
+                  </button>
+
+                  <span
+                    className="
+                      w-8
+                      text-center
+                      font-semibold
+                    "
+                  >
+                    {quantity}
+                  </span>
+
+                  <button
+                    onClick={() =>
+                      dispatch(
+                        increaseQty(product._id)
+                      )
+                    }
+                    className="
+                      w-8
+                      h-8
+                      rounded-lg
+                      hover:bg-white
+                      transition
+                      font-bold
+                    "
+                  >
+                    +
+                  </button>
+
+                </div>
 
                 <button
-                  onClick={() => dispatch(decreaseQty(product._id))}
-                  className="w-7 h-7 flex items-center justify-center rounded 
-                  hover:bg-gray-200 transition active:scale-90"
+                  onClick={() =>
+                    dispatch(
+                      removeFromCart(product._id)
+                    )
+                  }
+                  className="
+                    text-red-500
+                    hover:text-red-600
+                    text-sm
+                    font-medium
+                    transition
+                  "
                 >
-                  -
-                </button>
-
-                <span className="w-6 text-center font-semibold">
-                  {quantity}
-                </span>
-
-                <button
-                  onClick={() => dispatch(increaseQty(product._id))}
-                  className="w-7 h-7 flex items-center justify-center rounded 
-                  hover:bg-gray-200 transition active:scale-90"
-                >
-                  +
+                  Remove
                 </button>
 
               </div>
-
-              <button
-                onClick={() => dispatch(removeFromCart(product._id))}
-                className="text-red-500 hover:text-red-600 text-sm transition"
-              >
-                Remove
-              </button>
 
             </div>
 
@@ -117,22 +275,49 @@ export default function ProductCard({ product }) {
                   })
                 )
               }
-              className="mt-4 w-full bg-green-600 text-white py-2 rounded-lg 
-              hover:bg-green-700 transition-all duration-200 
-              shadow-sm hover:shadow-md active:scale-95 font-medium"
+              className="
+                mt-5
+                w-full
+                bg-gradient-to-r
+                from-green-600
+                to-green-700
+                text-white
+                py-3
+                rounded-xl
+                font-semibold
+                shadow-md
+                hover:shadow-xl
+                hover:from-green-700
+                hover:to-green-800
+                transition-all
+                duration-300
+              "
             >
               Add to Cart
             </button>
 
           )}
 
-          {/* ================= VIEW BUTTON ================= */}
+          {/* VIEW PRODUCT */}
 
           <Link href={`/product/${product._id}`}>
-            <button className="mt-3 w-full border border-gray-200 py-2 rounded-lg 
-              hover:bg-gray-50 transition text-sm">
+
+            <button
+              className="
+                mt-3
+                w-full
+                border
+                border-gray-200
+                py-3
+                rounded-xl
+                hover:bg-gray-50
+                font-medium
+                transition
+              "
+            >
               View Product
             </button>
+
           </Link>
 
         </div>
