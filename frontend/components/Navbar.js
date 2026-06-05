@@ -1,32 +1,31 @@
 "use client";
 
+import SearchBar from "./SearchBar";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
-
   const router = useRouter();
   const pathname = usePathname();
 
-  const cartItems = useSelector((state) => state.cart.items || []);
+  const cartItems = useSelector(
+    (state) => state.cart?.items || []
+  );
 
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [mounted, setMounted] = useState(false);
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] =
+    useState(false);
 
-  const [search, setSearch] = useState("");
-  const [results, setResults] = useState([]);
-  const [showResults, setShowResults] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
+  const [mobileOpen, setMobileOpen] =
+    useState(false);
 
   const dropdownRef = useRef();
-  const searchRef = useRef();
 
-  /* ================= LOAD USER ================= */
   const loadUser = () => {
     try {
       const u = localStorage.getItem("user");
@@ -34,216 +33,469 @@ export default function Navbar() {
 
       setUser(u ? JSON.parse(u) : null);
       setRole(r || null);
-    } catch (err) {
+    } catch {
       setUser(null);
       setRole(null);
     }
   };
 
-  /* ================= INITIAL LOAD ================= */
   useEffect(() => {
     setMounted(true);
     loadUser();
   }, []);
 
-  /* ================= 🔥 GLOBAL SYNC ================= */
   useEffect(() => {
-
     const handleUserUpdate = () => {
-      console.log("🔄 Navbar sync triggered");
       loadUser();
     };
 
-    window.addEventListener("userUpdated", handleUserUpdate);
+    window.addEventListener(
+      "userUpdated",
+      handleUserUpdate
+    );
 
-    return () => {
-      window.removeEventListener("userUpdated", handleUserUpdate);
-    };
-
+    return () =>
+      window.removeEventListener(
+        "userUpdated",
+        handleUserUpdate
+      );
   }, []);
 
-  /* ================= ROUTE CHANGE ================= */
   useEffect(() => {
     loadUser();
   }, [pathname]);
 
-  /* ================= CLICK OUTSIDE ================= */
   useEffect(() => {
     const handleClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
+      ) {
         setDropdownOpen(false);
-      }
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setShowResults(false);
       }
     };
 
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
+    document.addEventListener(
+      "click",
+      handleClick
+    );
+
+    return () =>
+      document.removeEventListener(
+        "click",
+        handleClick
+      );
   }, []);
 
-  /* ================= LOGOUT ================= */
   const handleLogout = () => {
     localStorage.clear();
 
-    // 🔥 trigger global update
-    window.dispatchEvent(new Event("userUpdated"));
+    window.dispatchEvent(
+      new Event("userUpdated")
+    );
 
     router.push("/");
   };
 
-  /* ================= SEARCH ================= */
-  useEffect(() => {
-    if (!search.trim()) {
-      setResults([]);
-      return;
-    }
-
-    const delay = setTimeout(async () => {
-      try {
-        const res = await fetch(`https://latika-organics-backend.onrender.com/api/products?search=${search}`);
-        const data = await res.json();
-        const list = data.products || data || [];
-        setResults(list);
-        setShowResults(true);
-        setActiveIndex(-1);
-      } catch (err) {
-        console.log(err);
-      }
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [search]);
-
-  const handleKeyDown = (e) => {
-    if (!showResults) return;
-
-    if (e.key === "ArrowDown") {
-      setActiveIndex((prev) => Math.min(prev + 1, results.length - 1));
-    }
-
-    if (e.key === "ArrowUp") {
-      setActiveIndex((prev) => Math.max(prev - 1, 0));
-    }
-
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (activeIndex >= 0) {
-        router.push(`/product/${results[activeIndex]._id}`);
-      } else {
-        router.push(`/products?search=${search}`);
-      }
-      setShowResults(false);
-    }
-  };
-
-  const highlight = (text) => {
-    const parts = text.split(new RegExp(`(${search})`, "gi"));
-    return parts.map((part, i) =>
-      part.toLowerCase() === search.toLowerCase()
-        ? <span key={i} style={{ fontWeight: 600, color: "#2e7d32" }}>{part}</span>
-        : part
-    );
-  };
+  const isActive = (path) =>
+    pathname === path;
 
   if (!mounted) return null;
 
   return (
-    <nav style={{
-      position: "fixed",
-      top: 0,
-      width: "100%",
-      zIndex: 1000,
-      backdropFilter: "blur(14px)",
-      background: "rgba(255,255,255,0.88)",
-      borderBottom: "1px solid rgba(0,0,0,0.04)"
-    }}>
+    <>
+      {/* TOP BAR */}
 
-      <div style={{
-        maxWidth: "1200px",
-        margin: "auto",
-        padding: "10px 20px",
-        display: "flex",
-        alignItems: "center",
-        gap: "20px"
-      }}>
-
-        {/* LOGO */}
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-          <img src="/logo.png" style={{ height: "38px" }} />
-          <span style={{ fontWeight: 600, fontSize: "15px", color: "#2e7d32" }}>
-            Latika Organics
-          </span>
-        </Link>
-
-        {/* SEARCH */}
-        <div ref={searchRef} style={{ flex: 1, maxWidth: "520px", position: "relative" }}>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onFocus={() => search && setShowResults(true)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search for products..."
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              borderRadius: "8px",
-              border: "1px solid #e5e5e5",
-              outline: "none"
-            }}
-          />
-        </div>
-
-        {/* MENU */}
-        <div style={{ display: "flex", gap: "18px", marginLeft: "auto", alignItems: "center" }}>
-
-          <Link href="/products">Products</Link>
-
-          {user && <Link href="/wishlist">Wishlist</Link>}
-          {user && <Link href="/cart">Cart ({cartItems.length})</Link>}
-
-          {role === "admin" && (
-            <Link href="/admin" style={{ color: "#2e7d32", fontWeight: 600 }}>
-              Admin
-            </Link>
-          )}
-
-          {!user ? (
-            <Link href="/login">
-              <button style={{
-                background: "#2e7d32",
-                color: "#fff",
-                padding: "6px 14px",
-                borderRadius: "6px",
-                border: "none"
-              }}>
-                Login
-              </button>
-            </Link>
-          ) : (
-            <div ref={dropdownRef}>
-              <button onClick={() => setDropdownOpen(!dropdownOpen)}>
-                👤 {user.name || "User"}
-              </button>
-
-              {dropdownOpen && (
-                <div style={{
-                  position: "absolute",
-                  background: "#fff",
-                  borderRadius: "10px",
-                  boxShadow: "0 10px 25px rgba(0,0,0,0.08)"
-                }}>
-                  <Link href="/profile"><div style={{ padding: "10px" }}>Profile</div></Link>
-                  <div onClick={handleLogout} style={{ padding: "10px", color: "red" }}>Logout</div>
-                </div>
-              )}
-            </div>
-          )}
-
-        </div>
-
+      <div className="fixed top-0 left-0 right-0 z-[1001] bg-green-800 text-white text-center text-xs md:text-sm py-2 font-medium">
+        🌿 Free Shipping Above ₹999 • 100% Organic • Cold Pressed Oils
       </div>
 
-    </nav>
+      {/* NAVBAR */}
+
+      <nav
+        className="
+          fixed
+          top-[32px]
+          left-0
+          right-0
+          z-[1000]
+          backdrop-blur-xl
+          bg-white/90
+          border-b
+          border-gray-100
+          shadow-sm
+        "
+      >
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            px-4
+            md:px-6
+            h-[72px]
+            flex
+            items-center
+            justify-between
+            gap-4
+          "
+        >
+          {/* LOGO */}
+
+          <Link
+            href="/"
+            className="
+              flex
+              items-center
+              gap-3
+              shrink-0
+            "
+          >
+            <img
+              src="/logo.png"
+              alt="Latika Organics"
+              className="h-10 w-auto"
+            />
+
+            <div>
+              <div
+                className="
+                  font-bold
+                  text-green-700
+                  text-lg
+                "
+              >
+                Latika Organics
+              </div>
+
+              <div
+                className="
+                  text-[11px]
+                  text-gray-500
+                "
+              >
+                Pure • Natural • Organic
+              </div>
+            </div>
+          </Link>
+
+          {/* DESKTOP SEARCH */}
+
+          <div
+            className="
+              hidden
+              md:flex
+              flex-1
+              justify-center
+              px-4
+            "
+          >
+            <SearchBar />
+          </div>
+
+          {/* DESKTOP MENU */}
+
+          <div
+            className="
+              hidden
+              md:flex
+              items-center
+              gap-6
+              shrink-0
+            "
+          >
+            <Link
+              href="/"
+              className={`transition ${
+                isActive("/")
+                  ? "text-green-700 font-semibold"
+                  : "text-gray-700 hover:text-green-700"
+              }`}
+            >
+              Home
+            </Link>
+
+            <Link
+              href="/products"
+              className={`transition ${
+                isActive("/products")
+                  ? "text-green-700 font-semibold"
+                  : "text-gray-700 hover:text-green-700"
+              }`}
+            >
+              Products
+            </Link>
+
+            {user && (
+              <Link
+                href="/wishlist"
+                className={`transition ${
+                  isActive("/wishlist")
+                    ? "text-green-700 font-semibold"
+                    : "text-gray-700 hover:text-green-700"
+                }`}
+              >
+                Wishlist
+              </Link>
+            )}
+
+            {user && (
+              <Link
+                href="/cart"
+                className="
+                  relative
+                  text-gray-700
+                  hover:text-green-700
+                "
+              >
+                🛒 Cart
+
+                {cartItems.length > 0 && (
+                  <span
+                    className="
+                      absolute
+                      -top-2
+                      -right-4
+                      bg-green-600
+                      text-white
+                      text-[10px]
+                      px-1.5
+                      py-0.5
+                      rounded-full
+                    "
+                  >
+                    {cartItems.length}
+                  </span>
+                )}
+              </Link>
+            )}
+
+            {role === "admin" && (
+              <Link
+                href="/admin"
+                className="
+                  text-green-700
+                  font-semibold
+                "
+              >
+                Admin
+              </Link>
+            )}
+
+            {!user ? (
+              <Link href="/login">
+                <button
+                  className="
+                    bg-green-600
+                    hover:bg-green-700
+                    text-white
+                    px-5
+                    py-2
+                    rounded-xl
+                    font-medium
+                    transition
+                  "
+                >
+                  Login
+                </button>
+              </Link>
+            ) : (
+              <div
+                className="relative"
+                ref={dropdownRef}
+              >
+                <button
+                  onClick={() =>
+                    setDropdownOpen(
+                      !dropdownOpen
+                    )
+                  }
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    bg-gray-100
+                    px-4
+                    py-2
+                    rounded-xl
+                    hover:bg-gray-200
+                    transition
+                  "
+                >
+                  👤
+                  <span>
+                    {user.name || "User"}
+                  </span>
+                </button>
+
+                {dropdownOpen && (
+                  <div
+                    className="
+                      absolute
+                      right-0
+                      mt-2
+                      w-48
+                      bg-white
+                      rounded-2xl
+                      shadow-xl
+                      border
+                      border-gray-100
+                      overflow-hidden
+                    "
+                  >
+                    <Link href="/profile">
+                      <div className="px-4 py-3 hover:bg-gray-50">
+                        My Profile
+                      </div>
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="
+                        w-full
+                        text-left
+                        px-4
+                        py-3
+                        text-red-500
+                        hover:bg-red-50
+                      "
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* MOBILE BUTTON */}
+
+          <button
+            className="
+              md:hidden
+              text-2xl
+            "
+            onClick={() =>
+              setMobileOpen(!mobileOpen)
+            }
+          >
+            ☰
+          </button>
+        </div>
+
+        {/* MOBILE MENU */}
+
+        {mobileOpen && (
+          <div
+            className="
+              md:hidden
+              border-t
+              bg-white
+              px-4
+              py-4
+              space-y-4
+              shadow-lg
+            "
+          >
+            {/* MOBILE SEARCH */}
+
+            <SearchBar />
+
+            <Link
+              href="/"
+              className={`block ${
+                isActive("/")
+                  ? "text-green-700 font-semibold"
+                  : ""
+              }`}
+            >
+              Home
+            </Link>
+
+            <Link
+              href="/products"
+              className={`block ${
+                isActive("/products")
+                  ? "text-green-700 font-semibold"
+                  : ""
+              }`}
+            >
+              Products
+            </Link>
+
+            {user && (
+              <Link
+                href="/wishlist"
+                className={`block ${
+                  isActive("/wishlist")
+                    ? "text-green-700 font-semibold"
+                    : ""
+                }`}
+              >
+                Wishlist
+              </Link>
+            )}
+
+            {user && (
+              <Link
+                href="/cart"
+                className={`block ${
+                  isActive("/cart")
+                    ? "text-green-700 font-semibold"
+                    : ""
+                }`}
+              >
+                🛒 Cart ({cartItems.length})
+              </Link>
+            )}
+
+            {role === "admin" && (
+              <Link
+                href="/admin"
+                className="block text-green-700 font-semibold"
+              >
+                Admin Dashboard
+              </Link>
+            )}
+
+            {!user ? (
+              <Link href="/login">
+                <button
+                  className="
+                    w-full
+                    bg-green-600
+                    hover:bg-green-700
+                    text-white
+                    py-3
+                    rounded-xl
+                    font-medium
+                  "
+                >
+                  Login
+                </button>
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/profile"
+                  className="block"
+                >
+                  My Profile
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="
+                    text-red-500
+                    font-medium
+                  "
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </nav>
+    </>
   );
 }

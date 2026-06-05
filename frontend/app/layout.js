@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
           <Navbar />
 
           {/* MAIN CONTENT */}
-          <main style={{ paddingTop: "70px" }}>
+          <main style={{ paddingTop: "110px" }}>
             {children}
           </main>
 
