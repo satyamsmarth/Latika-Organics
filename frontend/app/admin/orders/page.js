@@ -70,6 +70,12 @@ export default function AdminOrders() {
       });
 
       setNewOrderIds(prev => [...prev, newOrder._id]);
+
+      setTimeout(() => {
+      setNewOrderIds(prev =>
+      prev.filter(id => id !== newOrder._id)
+       );
+      }, 300000); // 5 minutes
     };
 
     socket.on("new-order", handleNewOrder);
@@ -135,8 +141,10 @@ export default function AdminOrders() {
               whileHover={{ scale: 1.005 }}
               className={`
                 rounded-2xl border bg-white shadow-sm transition-all
-                ${isNew ? "ring-2 ring-yellow-300" : ""}
-              `}
+                ${isNew
+                ? "ring-4 ring-yellow-400 bg-yellow-50 shadow-lg"
+                 : ""}
+               `}
             >
 
               {/* HEADER */}
@@ -154,7 +162,12 @@ export default function AdminOrders() {
                   </span>
 
                   {isNew && (
-                    <span className="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
+                    <>
+                  <span className="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
+                  <span className="text-xs font-bold text-red-600">
+                   NEW
+                  </span>
+                    </>
                   )}
                 </div>
 
