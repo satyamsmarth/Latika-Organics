@@ -164,18 +164,44 @@ export default function Profile() {
 
         {user && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition"
-          >
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="
+    bg-white
+    rounded-3xl
+    p-8
+    border
+    border-gray-100
+    shadow-sm
+    hover:shadow-xl
+    transition
+    overflow-hidden
+    relative
+  "
+>
+
+  <div
+    className="
+      absolute
+      top-0
+      right-0
+      w-72
+      h-72
+      bg-green-100
+      rounded-full
+      blur-3xl
+      opacity-60
+      pointer-events-none
+    "
+  />
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center text-xl font-semibold">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center text-3xl font-semibold">
                   {user.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
 
                 <div>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className="text-2xl font-bold text-gray-900">
                     {user.name || "No Name"}
                   </p>
 
@@ -188,7 +214,19 @@ export default function Profile() {
               {!editing ? (
                 <button
                   onClick={() => setEditing(true)}
-                  className="bg-black text-white px-4 py-2 rounded-md text-sm hover:opacity-80"
+                  className="
+                  bg-green-600
+                  text-white
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  text-sm
+                  font-medium
+                  hover:bg-green-700
+                  transition
+                  shadow-sm
+                  hover:shadow-md
+                  "
                 >
                   Edit Profile
                 </button>
@@ -260,21 +298,89 @@ export default function Profile() {
 
         {/* ENHANCED ORDERS SECTION */}
 
-        <h2 className="text-2xl font-bold text-gray-800">My Orders</h2>
+        {/* STATS */}
+
+        <div className="grid md:grid-cols-3 gap-5">
+
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+        <p className="text-sm text-gray-500">
+          Total Orders
+        </p>
+
+        <p className="text-3xl font-bold text-green-700 mt-2">
+        {orders.length}
+        </p>
+        </div>
+
+  <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+    <p className="text-sm text-gray-500">
+      Total Spent
+    </p>
+
+    <p className="text-3xl font-bold text-green-700 mt-2">
+      ₹
+      {orders.reduce(
+        (sum, order) =>
+          sum + Number(order.total || 0),
+        0
+      )}
+    </p>
+  </div>
+
+  <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+    <p className="text-sm text-gray-500">
+      Account Status
+    </p>
+
+    <span className="inline-flex mt-3 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+      Active
+    </span>
+  </div>
+
+</div>
+
+        <h2 className="text-3xl font-bold text-gray-900">My Orders</h2>
 
         {orders.length === 0 ? (
-          <div className="bg-white rounded-2xl p-10 text-center shadow-sm">
-            <p className="text-gray-500">No orders found</p>
-          </div>
+          <div className="bg-white rounded-3xl p-14 text-center shadow-sm">
+
+  <div className="text-5xl mb-4">
+    📦
+  </div>
+
+  <h3 className="text-xl font-semibold mb-2">
+    No Orders Yet
+  </h3>
+
+  <p className="text-gray-500">
+    Your orders will appear here once you place an order.
+  </p>
+
+</div>
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
               <motion.div
                 key={order._id}
                 whileHover={{ y: -2 }}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                className="
+                        bg-white
+                        rounded-3xl
+                        border
+                        border-gray-100
+                        shadow-sm
+                        hover:shadow-lg
+                        transition
+                        overflow-hidden
+                        "
               >
-                <div className="p-5 border-b bg-gray-50">
+                <div className="
+p-6
+border-b
+bg-gradient-to-r
+from-green-50
+to-white
+">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
                       <p className="text-xs text-gray-500">ORDER ID</p>
@@ -301,7 +407,19 @@ export default function Profile() {
                         href={`https://latika-organics-backend.onrender.com/api/orders/invoice/${order._id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
+                        className="
+bg-green-600
+text-white
+px-5
+py-2.5
+rounded-xl
+text-sm
+font-medium
+hover:bg-green-700
+transition
+shadow-sm
+hover:shadow-md
+"
                       >
                         Download Invoice
                       </a>
@@ -309,7 +427,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="p-5">
+                <div className="p-6">
                   <h3 className="font-semibold mb-4">Products</h3>
 
                   <div className="space-y-3">
@@ -317,15 +435,46 @@ export default function Profile() {
                       order.items.map((item, index) => (
                         <div
                           key={index}
-                          className="flex justify-between items-center border rounded-xl p-3"
+                          className="
+flex
+justify-between
+items-center
+border
+rounded-2xl
+p-4
+hover:bg-gray-50
+transition
+"
                         >
-                          <div>
-                            <p className="font-medium">{item.name}</p>
+                          <div className="flex items-center gap-4">
 
-                            <p className="text-sm text-gray-500">
-                              Qty: {item.quantity}
-                            </p>
-                          </div>
+  <img
+    src={
+      item.image ||
+      "https://via.placeholder.com/80"
+    }
+    alt={item.name}
+    className="
+      w-16
+      h-16
+      object-cover
+      rounded-xl
+      border
+      border-gray-200
+    "
+  />
+
+  <div>
+    <p className="font-medium">
+      {item.name}
+    </p>
+
+    <p className="text-sm text-gray-500">
+      Qty: {item.quantity}
+    </p>
+  </div>
+
+</div>
 
                           <div className="font-semibold">
                             ₹{item.price * item.quantity}

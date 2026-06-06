@@ -68,7 +68,7 @@ router.post("/send-otp", async (req, res) => {
       console.log("📧 SENDING OTP VIA RESEND");
 
       const { data, error } = await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "Latika Gruh Udyog <orders@latikagruhudyog.in>",
         to: email,
         subject: "Your Latika Organics OTP",
         html: `

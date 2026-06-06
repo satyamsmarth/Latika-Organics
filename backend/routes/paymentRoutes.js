@@ -144,7 +144,7 @@ router.post("/verify", async (req, res) => {
 
         if (order.email) {
           await resend.emails.send({
-            from: "onboarding@resend.dev",
+            from: "Latika Gruh Udyog <orders@latikagruhudyog.in>",
             to: order.email,
             subject: "Order Confirmed - Latika Organics 🌿",
             html: `
@@ -174,7 +174,7 @@ router.post("/verify", async (req, res) => {
 
         if (process.env.ADMIN_EMAIL) {
           await resend.emails.send({
-            from: "onboarding@resend.dev",
+            from: "Latika Gruh Udyog <orders@latikagruhudyog.in>",
             to: process.env.ADMIN_EMAIL,
             subject: "🛒 New Order Received",
             html: `
